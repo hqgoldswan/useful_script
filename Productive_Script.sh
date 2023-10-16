@@ -41,6 +41,9 @@ tar czvf MyProject.20090816.tgz MyProject
 ## Create tar-zipped for current folder
 tar czvf myDirectory.tgz .
 
+## Untar a tgz file
+tar xzvf MyProject.20090816.tgz
+
 # Split file into multiple smaller files
 split -b size_in_byte need_to_split_filename target_filename_prefix
 split -l number_of_text_line text_filename_need_to_be_split tartget_text_filename_prefix
