@@ -1,6 +1,7 @@
 import re
 import requests
 import csv
+from collections import defaultdict
 
 # Replace 'your_github_access_token' with your actual GitHub Personal Access Token
 GITHUB_TOKEN = 'your_github_access_token'
@@ -40,19 +41,20 @@ def write_to_csv(results, filename='results.csv'):
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(['Repository Full Name', 'Matched Content'])
-        for result in results:
-            matched_text = ' '.join(result['matches'])
-            writer.writerow([result['full_name'], matched_text])
+        for full_name, matches in results.items():
+            matched_text = ' '.join(matches)
+            writer.writerow([full_name, matched_text])
     print(f"Results written to {filename}")
 
 
 def main():
-    results = []
+    results = defaultdict(list)
     pattern = r'arn:aws:iam::[\w-]+:[\w-]+'
     try:
         data = search_github(SEARCH_QUERY, headers)
         for item in data.get('items', []):
             repository_full_name = item['repository']['full_name']
+            # Exclude repositories with "Jenkins" or "harness" in name, case insensitive
             if re.search(r'jenkins|harness', repository_full_name, re.IGNORECASE):
                 continue
             file_url = item['html_url']
@@ -60,11 +62,7 @@ def main():
                 content = download_file_content(file_url)
                 matches = find_pattern_in_content(pattern, content)
                 if matches:
-                    result = {
-                        'full_name': repository_full_name,
-                        'matches': matches
-                    }
-                    results.append(result)
+                    results[repository_full_name].extend(matches)
             except Exception as e:
                 print(f"Failed to process {file_url}: {e}")
 
