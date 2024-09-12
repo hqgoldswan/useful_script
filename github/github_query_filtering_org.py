@@ -1,10 +1,11 @@
 import re
 import requests
 import csv
+import time
 
 # Replace 'your_github_access_token' with your actual GitHub Personal Access Token
 GITHUB_TOKEN = 'your_github_access_token'
-SEARCH_QUERY_BASE = 'arn:aws:iam:: language:yaml OR language:hcl'
+SEARCH_QUERY_BASE = '"arn:aws:iam::" language:yaml OR "arn:aws:iam::" language:hcl'
 
 # Headers for GitHub API request
 headers = {
@@ -58,6 +59,9 @@ def main():
     # Read the list of organizations from file
     organizations = read_organizations(organization_file)
 
+    request_counter = 0
+    start_time = time.time()
+
     # Iterate over the list of organizations
     for org in organizations:
         partitioned_query = f"{SEARCH_QUERY_BASE} org:{org}"
@@ -73,13 +77,33 @@ def main():
 
                 for item in items:
                     repository_full_name = item['repository']['full_name']
+
+                    # Logging each repository being processed
+                    print(f"Processing repository: {repository_full_name}")
+
                     # Check if any of the exclude patterns are found in the repo full name
                     if any(re.search(pattern, repository_full_name, re.IGNORECASE) for pattern in exclude_patterns):
+                        print(f"Excluded repository: {repository_full_name}")
                         continue
 
                     matching_repos.add(repository_full_name)
 
                 page += 1
+
+                # Increment the request counter
+                request_counter += 1
+
+                # Check the requests per minute condition
+                if request_counter == 30:
+                    elapsed_time = time.time() - start_time
+                    if elapsed_time < 60:
+                        sleep_time = 60 - elapsed_time
+                        print(f"Reached 30 requests. Sleeping for {sleep_time} seconds.")
+                        time.sleep(sleep_time)
+                    # Reset the counter and start time
+                    request_counter = 0
+                    start_time = time.time()
+
             except Exception as e:
                 print(f"An error occurred: {e}")
                 break
