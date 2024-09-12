@@ -53,6 +53,8 @@ def main():
         data = search_github(SEARCH_QUERY, headers)
         for item in data.get('items', []):
             repository_full_name = item['repository']['full_name']
+            if re.search(r'jenkins|harness', repository_full_name, re.IGNORECASE):
+                continue
             file_url = item['html_url']
             try:
                 content = download_file_content(file_url)
