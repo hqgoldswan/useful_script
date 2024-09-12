@@ -41,7 +41,7 @@ def write_to_csv(results, filename='results.csv'):
         writer = csv.writer(file)
         writer.writerow(['Repository Full Name', 'Matched Content'])
         for result in results:
-            matched_text = '\n'.join(result['matches'])
+            matched_text = ' '.join(result['matches'])
             writer.writerow([result['full_name'], matched_text])
     print(f"Results written to {filename}")
 
