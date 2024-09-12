@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="UPPAAL-5.0.0-app">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/UPPAAL-5.0.0-app.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
